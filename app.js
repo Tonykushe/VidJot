@@ -2,6 +2,8 @@ const express = require('express');
 const exphbs = require('express-handlebars');
 const bodyParser = require('body-parser');
 const methodOverride = require("method-override");
+const session = require("express-session");
+const flash = require("connect-flash");
 const { ObjectID } = require('mongodb');
 const app = express();
 const port = 3000;
@@ -23,6 +25,23 @@ app.use(bodyParser.json());
 // Method Override Middleware
 app.use(methodOverride("_method"));
 
+// Express session middleware
+app.use(session({
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: true
+}));
+
+// Flash middleware
+app.use(flash());
+
+// Global Variables for Messages
+app.use((req, res, next) => {
+    res.locals.success_msg = req.flash('success_msg');
+    res.locals.error_msg = req.flash("error_msg");
+    res.locals.error = req.flash("error");
+    next();
+});
 
 
 // Index Route
@@ -89,6 +108,7 @@ app.post('/ideas', (req, res) => {
         });
 
         idea.save().then(doc => {
+            req.flash("success_msg", "Video idea Added");
             res.redirect('/ideas');
         }, (err) => {
             res.status(400).send(err)
@@ -122,6 +142,7 @@ app.put('/ideas/:id', (req, res) => {
         idea.details = req.body.details
 
         idea.save().then(doc => {
+            req.flash("success_msg", "Video idea Updated");
             res.redirect("/ideas");
           }, err => {
             res.status(400).send(err);
@@ -129,8 +150,9 @@ app.put('/ideas/:id', (req, res) => {
     });
 });
 
-// Delete Idea
 
+
+// Delete Idea
 app.delete('/ideas/:id', (req, res) => {
     var id = req.params.id;
 
@@ -139,8 +161,8 @@ app.delete('/ideas/:id', (req, res) => {
     }
 
     Idea.findByIdAndRemove(id).then(() => {
+        req.flash('success_msg', 'Video idea Removed');
         res.redirect('/ideas');
-        
     }).catch((e) => res.status(400).send());
 
 });
