@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { ObjectID } = require("mongodb");
+const {ensureAuthenticated} = require('../helpers/auth');
 
 // Connect to Mongoose DB
 var {mongoose} = require('../db/mongoose');
@@ -10,13 +11,13 @@ var {Idea} = require('../models/Idea');
 
 
 // Add idea
-router.get('/add', (req, res) => {
+router.get('/add',ensureAuthenticated, (req, res) => {
     res.render('ideas/add');
 
 });
 
 // Edit Idea
-router.get('/edit/:id', (req, res) => {
+router.get('/edit/:id', ensureAuthenticated, (req, res) => {
     var id = req.params.id;
 
     if (!ObjectID.isValid(id)) {
@@ -26,15 +27,20 @@ router.get('/edit/:id', (req, res) => {
         if (!idea) {
             return res.status(404).send();
         }
+        if (idea.user != req.user.id) {
+            req.flash('error_msg', 'Not Authorized')
+            res.redirect('/ideas');
+        } else {
+            res.render('ideas/edit', { idea });
 
-        res.render('ideas/edit', {idea});
+        }
     }).catch(e => res.status(400).send());
 
 });
 
 
 // Post Idea Form
-router.post('/', (req, res) => {
+router.post('/', ensureAuthenticated, (req, res) => {
     let errors = [];
 
     if (!req.body.title) {
@@ -54,7 +60,8 @@ router.post('/', (req, res) => {
     } else {
         var idea = new Idea({
             title: req.body.title,
-            details: req.body.details
+            details: req.body.details,
+            user: req.user.id
         });
 
         idea.save().then(doc => {
@@ -69,8 +76,8 @@ router.post('/', (req, res) => {
 });
 
 // Get Ideas
-router.get('/', (req, res) => {
-    Idea.find()
+router.get('/', ensureAuthenticated,(req, res) => {
+    Idea.find({user: req.user.id})
         .sort({date: 'desc'})
         .then((ideas) => {
         res.render('ideas/ideas', {ideas});
@@ -80,7 +87,7 @@ router.get('/', (req, res) => {
 });
 
 // Update Idea
-router.put('/:id', (req, res) => {
+router.put('/:id', ensureAuthenticated,(req, res) => {
     var id = req.params.id
 
     if (!ObjectID.isValid(id)) {
@@ -103,7 +110,7 @@ router.put('/:id', (req, res) => {
 
 
 // Delete Idea
-router.delete('/:id', (req, res) => {
+router.delete('/:id', ensureAuthenticated, (req, res) => {
     var id = req.params.id;
 
     if (!ObjectID.isValid(id)) {
