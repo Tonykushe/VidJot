@@ -1,3 +1,4 @@
+const db = require('./config/dbconfig');
 const express = require('express');
 const exphbs = require('express-handlebars');
 const bodyParser = require('body-parser');
@@ -7,7 +8,10 @@ const flash = require("connect-flash");
 const passport = require('passport');
 const path = require('path');
 const app = express();
-const port = 3000;
+const port = process.env.port || 3000;
+
+
+
 // Load Routes
 const ideas = require('./routes/ideas');
 const users = require("./routes/users");
@@ -64,7 +68,7 @@ app.use("/users", users);
 
 // Index Route
 app.get('/', (req, res) => {
-    const title = 'Welcome Tony'
+    const title = 'Welcome To VidJot'
     res.render('home', {
         title
     });
@@ -76,43 +80,6 @@ app.get('/about', (req, res) => {
     res.render('about');
 
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
