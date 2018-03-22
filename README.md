@@ -1,6 +1,9 @@
+<p align="center">
 # VidJot
-
 > A Node.js Project build using Express Web Framework and MongoDB 
+
+</p>
+
 
 ## Build Setup
  ```
