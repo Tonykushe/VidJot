@@ -1,4 +1,4 @@
-const db = require('./config/dbconfig');
+require('./config/dbconfig');
 const express = require('express');
 const exphbs = require('express-handlebars');
 const bodyParser = require('body-parser');
@@ -8,7 +8,7 @@ const flash = require("connect-flash");
 const passport = require('passport');
 const path = require('path');
 const app = express();
-const port = process.env.port || 3000;
+const port = process.env.PORT;
 
 
 

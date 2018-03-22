@@ -1,7 +1,9 @@
-var env = process.env.NODE_ENV;
+var env = process.env.NODE_ENV || "development";
 
-if (env === "production") {
-    module.exports = { MONGODB_URI: 'mongodb://Tony:LILTONYlb26@ds221339.mlab.com:21339/vidjot-prod'}
-} else {
-    module.exports = { MONGODB_URI: 'mongodb://localhost:27017/vidjot'}
+if (env === "development") {
+    process.env.PORT = 3000;
+    process.env.MONGODB_URI = "mongodb://localhost:27017/vidjot";
+} else if (env === "test") {
+    process.env.PORT = 3000;
+    process.env.MONGODB_URI = "mongodb://localhost:27017/vidjotTest";
 }
